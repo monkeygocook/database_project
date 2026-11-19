@@ -23,6 +23,9 @@ Project data base
 
 ## งานที่ต้องทำ
 
+### Gobal
+- [ ] เขียน log book กันทุกคน
+
 
 ### HTML
 - [ ] สร้าง index.html

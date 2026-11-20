@@ -72,6 +72,38 @@ Project data base
 - [ ] ทดสอบการใช้งานพร้อมกันหลายคน
 
 
+## ชื่อที่ใช้ร่วมกัน (ห้ามเปลี่ยนเองโดยไม่แจ้งทีม)
+
+### 1. ฐานข้อมูล (Database ↔ Flask)
+ใช้ตาม ER ทุกตัวอักษร
+| ตาราง | คอลัมน์ |
+|---|---|
+| batches | batch_id, batch_name, grad_year |
+| advisors | advisor_id, advisor_name |
+| projects | project_id, project_name, abstract, objectives, report_file, advisor_id, category_id |
+
+### 2. ชื่อช่องในฟอร์ม (HTML ↔ Flask)
+| หน้า | name="" | ความหมาย |
+|---|---|---|
+| ล็อกอิน | username | รหัสนักศึกษา |
+| ล็อกอิน | password | รหัสผ่าน |
+| ค้นหา | q | คำค้นหา |
+| ค้นหา | batch / advisor / category | tag ที่เลือก |
+
+### 3. URL ของแต่ละหน้า (HTML ↔ Flask)
+| URL | หน้า |
+|---|---|
+| / | หน้าหลัก + ค้นหา |
+| /project/<id> | รายละเอียดโครงงาน |
+| /login | ล็อกอิน |
+| /staff | หน้าของ staff |
+
+### 4. ตัวแปรที่ Flask ส่งให้หน้า HTML
+| หน้า | ตัวแปร | ข้อมูลข้างใน |
+|---|---|---|
+| index.html | projects | รายการโครงงานที่ค้นเจอ |
+| project.html | project | ข้อมูลโครงงาน 1 อัน |
+
 
 ## จัดทำโดย
 |ชื่อ-นามสกุล|รหัสนักศึกษา|

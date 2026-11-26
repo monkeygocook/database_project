@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7f5">
+  <title>เพิ่มโครงงานรุ่นพี่</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #182a27;
+      --muted: #71817c;
+      --line: #dce5e0;
+      --paper: #ffffff;
+      --canvas: #f4f7f5;
+      --accent: #167d69;
+      --accent-dark: #10614f;
+      --accent-soft: #e9f5f1;
+      --warning: #9e5632;
+      font-family: "Leelawadee UI", "Noto Sans Thai", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--canvas);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .page-shell {
+      width: min(100% - 40px, 1040px);
+      margin: 0 auto;
+      padding: 42px 0 64px;
+    }
+
+    .page-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .11em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 4vw, 34px);
+      line-height: 1.25;
+      letter-spacing: -.025em;
+    }
+
+    .heading-note {
+      max-width: 360px;
+      margin: 0;
+      color: var(--muted);
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .form-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+      box-shadow: 0 14px 38px rgb(26 57 47 / 6%);
+    }
+
+    .form-content { padding: 28px; }
+
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.35fr;
+      grid-template-areas:
+        "senior year abstract"
+        "advisor tags abstract";
+      gap: 18px 16px;
+      align-items: start;
+    }
+
+    .field { min-width: 0; }
+    .field-senior { grid-area: senior; }
+    .field-year { grid-area: year; }
+    .field-advisor { grid-area: advisor; }
+    .field-tags { grid-area: tags; }
+    .field-abstract { grid-area: abstract; }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0 0 7px;
+      color: #31433e;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .required { color: #c25e46; }
+
+    .text-control,
+    .tag-control {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .text-control { padding: 11px 13px; }
+    .text-control::placeholder, .tag-input::placeholder { color: #9aa8a3; }
+
+    .text-control:focus,
+    .tag-control:focus-within {
+      border-color: #63ae9c;
+      box-shadow: 0 0 0 3px rgb(22 125 105 / 11%);
+    }
+
+    .abstract-box {
+      display: flex;
+      flex-direction: column;
+      min-height: 174px;
+    }
+
+    textarea.text-control {
+      min-height: 124px;
+      flex: 1;
+      resize: vertical;
+    }
+
+    .field-hint {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .converter-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 7px;
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .converter-link:hover { text-decoration: underline; }
+
+    .tag-control {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 6px 8px;
+    }
+
+    .tag-list { display: contents; }
+
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      max-width: 100%;
+      padding: 4px 7px 4px 10px;
+      border: 1px solid #cce6dc;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #236b59;
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .tag-remove {
+      display: inline-grid;
+      width: 18px;
+      height: 18px;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #49816f;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .tag-remove:hover { background: #d5ebe3; }
+
+    .tag-input {
+      flex: 1 1 90px;
+      min-width: 75px;
+      height: 30px;
+      padding: 3px 5px;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+    }
+
+    .section-divider { height: 1px; margin: 26px 0 22px; background: #edf1ef; }
+
+    .upload-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 11px;
+    }
+
+    .upload-heading .field-label { margin: 0; }
+
+    .file-type {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .drop-zone {
+      display: grid;
+      min-height: 250px;
+      place-items: center;
+      padding: 24px;
+      border: 1.5px dashed #bdd1c9;
+      border-radius: 13px;
+      background: #fbfdfc;
+      text-align: center;
+      transition: border-color .16s ease, background .16s ease;
+    }
+
+    .drop-zone.is-dragging {
+      border-color: var(--accent);
+      background: #f0faf6;
+    }
+
+    .drop-zone.has-file { min-height: 190px; }
+
+    .drop-content { max-width: 480px; }
+
+    .pdf-icon {
+      display: grid;
+      width: 52px;
+      height: 58px;
+      place-items: center;
+      margin: 0 auto 13px;
+      border: 1px solid #d8e4df;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 5px 14px rgb(31 73 58 / 6%);
+    }
+
+    .drop-title { margin: 0; font-size: 15px; font-weight: 700; }
+    .drop-copy { margin: 4px 0 14px; color: var(--muted); font-size: 12px; }
+
+    .secondary-button {
+      min-height: 39px;
+      padding: 8px 15px;
+      border: 1px solid #b9d7cd;
+      border-radius: 9px;
+      background: white;
+      color: var(--accent-dark);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .secondary-button:hover { border-color: var(--accent); background: #f5fbf8; }
+
+    .file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
+
+    .file-details {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      text-align: left;
+    }
+
+    .file-details.is-visible { display: flex; }
+    .file-name { min-width: 0; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size { flex: none; color: var(--muted); font-size: 11px; }
+
+    .file-preview {
+      display: none;
+      width: 100%;
+      height: 540px;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #e8eeeb;
+    }
+
+    .file-preview.is-visible { display: block; }
+
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .save-note { max-width: 600px; margin: 0; color: var(--muted); font-size: 12px; }
+
+    .submit-button {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 46px;
+      padding: 11px 22px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 5px 13px rgb(22 125 105 / 18%);
+      transition: background .16s ease, transform .16s ease;
+    }
+
+    .submit-button:hover { background: var(--accent-dark); transform: translateY(-1px); }
+    .submit-button:active { transform: translateY(0); }
+
+    .status-message {
+      display: none;
+      margin-top: 16px;
+      padding: 11px 13px;
+      border: 1px solid #f0d7c6;
+      border-radius: 9px;
+      background: #fff9f5;
+      color: var(--warning);
+      font-size: 13px;
+    }
+
+    .status-message.is-visible { display: block; }
+
+    @media (max-width: 760px) {
+      .page-shell { width: min(100% - 28px, 600px); padding: 28px 0 40px; }
+      .page-heading { display: block; }
+      .heading-note { margin-top: 9px; text-align: left; }
+      .form-content { padding: 20px; }
+      .metadata-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "senior year"
+          "advisor tags"
+          "abstract abstract";
+      }
+      .abstract-box { min-height: 0; }
+      textarea.text-control { min-height: 125px; }
+    }
+
+    @media (max-width: 480px) {
+      .form-content { padding: 17px; }
+      .metadata-grid { grid-template-columns: 1fr; grid-template-areas: "senior" "year" "advisor" "tags" "abstract"; gap: 15px; }
+      .form-footer { align-items: stretch; flex-direction: column; }
+      .submit-button { width: 100%; }
+      .drop-zone { min-height: 220px; padding: 18px; }
+      .upload-heading { align-items: flex-start; flex-direction: column; gap: 2px; }
+      .file-preview { height: 420px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="page-heading">
+      <div>
+        <p class="eyebrow">PROJECT ARCHIVE</p>
+        <h1>เพิ่มโครงงานรุ่นพี่</h1>
+      </div>
+      <p class="heading-note">กรอกข้อมูลจากรายงานและแนบไฟล์ PDF เพื่อเพิ่มโครงงานเข้าสู่คลังข้อมูล</p>
+    </header>
+
+    <section class="form-card" aria-label="แบบฟอร์มเพิ่มโครงงาน">
+      <form id="project-form" enctype="multipart/form-data" novalidate>
+        <div class="form-content">
+          <div class="metadata-grid">
+            <div class="field field-senior">
+              <label class="field-label" for="senior-name">ชื่อรุ่นพี่ <span class="required" aria-hidden="true">*</span></label>
+              <input class="text-control" id="senior-name" name="senior_name" type="text" placeholder="ชื่อ–นามสกุล" autocomplete="name" required>
+            </div>
+
+            <div class="field field-year">
+              <label class="field-label" for="grad-year">รุ่นปี <span class="required" aria-hidden="true">*</span></label>
+              <input class="text-control" id="grad-year" name="grad_year" type="text" inputmode="numeric" placeholder="เช่น 2567" required>
+            </div>
+
+            <div class="field field-advisor">
+              <label class="field-label" for="advisor-name">ชื่ออาจารย์ <span class="required" aria-hidden="true">*</span></label>
+              <input class="text-control" id="advisor-name" name="advisor_name" type="text" placeholder="ชื่ออาจารย์ที่ปรึกษา" required>
+            </div>
+
+            <div class="field field-tags">
+              <label class="field-label" for="tag-input">Tag</label>
+              <div class="tag-control" id="tag-control">
+                <div class="tag-list" id="tag-list" aria-live="polite"></div>
+                <input class="tag-input" id="tag-input" type="text" placeholder="พิมพ์แล้วกด Enter">
+              </div>
+              <input id="tags-value" name="tags" type="hidden" value="[]">
+              <p class="field-hint">เพิ่มได้หลาย tag เช่น ระบบเว็บ, AI, ฐานข้อมูล</p>
+            </div>
+
+            <div class="field field-abstract">
+              <label class="field-label" for="abstract">บทคัดย่อ <span class="required" aria-hidden="true">*</span></label>
+              <div class="abstract-box">
+                <textarea class="text-control" id="abstract" name="abstract" placeholder="สรุปว่าโปรเจกต์นี้ทำอะไร ใช้วิธีใด และได้ผลอย่างไร" required></textarea>
+                <a class="converter-link" href="https://monkeygocook.github.io/Markdown/" target="_blank" rel="noopener noreferrer">
+                  เปิดเครื่องมือ PDF → Markdown <span aria-hidden="true">↗</span>
+                </a>
+                <p class="field-hint">แปลง PDF เป็น Markdown แล้วนำข้อความบทคัดย่อมาวางในช่องนี้</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider" aria-hidden="true"></div>
+
+          <div class="upload-heading">
+            <label class="field-label" for="report-file">ไฟล์ PDF <span class="required" aria-hidden="true">*</span></label>
+            <span class="file-type">รองรับไฟล์ .pdf เท่านั้น</span>
+          </div>
+
+          <div class="drop-zone" id="drop-zone">
+            <div class="drop-content">
+              <div class="pdf-icon" aria-hidden="true">PDF</div>
+              <p class="drop-title" id="drop-title">ลากไฟล์ PDF มาวางที่นี่</p>
+              <p class="drop-copy" id="drop-copy">หรือเลือกไฟล์จากอุปกรณ์ของคุณ</p>
+              <button class="secondary-button" id="choose-file" type="button">เลือกไฟล์ PDF</button>
+              <input class="file-input" id="report-file" name="report_file" type="file" accept="application/pdf,.pdf" required>
+              <div class="file-details" id="file-details" aria-live="polite">
+                <span class="file-name" id="file-name"></span>
+                <span class="file-size" id="file-size"></span>
+              </div>
+            </div>
+          </div>
+          <iframe class="file-preview" id="file-preview" title="ตัวอย่างไฟล์ PDF"></iframe>
+
+          <div class="form-footer">
+            <p class="save-note">ตรวจสอบชื่อ รุ่นปี และบทคัดย่อก่อนส่งข้อมูล</p>
+            <button class="submit-button" type="submit">อัปโหลดโครงงาน <span aria-hidden="true">→</span></button>
+          </div>
+          <div class="status-message" id="status-message" role="status" aria-live="polite"></div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const form = document.getElementById('project-form');
+      const tagInput = document.getElementById('tag-input');
+      const tagList = document.getElementById('tag-list');
+      const tagsValue = document.getElementById('tags-value');
+      const fileInput = document.getElementById('report-file');
+      const dropZone = document.getElementById('drop-zone');
+      const fileDetails = document.getElementById('file-details');
+      const filePreview = document.getElementById('file-preview');
+      const statusMessage = document.getElementById('status-message');
+      const tags = [];
+      let previewUrl = '';
+
+      function renderTags() {
+        tagList.replaceChildren();
+        tags.forEach((tag, index) => {
+          const chip = document.createElement('span');
+          chip.className = 'tag-chip';
+
+          const text = document.createElement('span');
+          text.textContent = tag;
+
+          const remove = document.createElement('button');
+          remove.className = 'tag-remove';
+          remove.type = 'button';
+          remove.setAttribute('aria-label', `ลบ tag ${tag}`);
+          remove.textContent = '×';
+          remove.addEventListener('click', () => {
+            tags.splice(index, 1);
+            renderTags();
+            tagInput.focus();
+          });
+
+          chip.append(text, remove);
+          tagList.append(chip);
+        });
+        tagsValue.value = JSON.stringify(tags);
+      }
+
+      function addTag(value) {
+        const tag = value.trim().replace(/^#+/, '');
+        if (tag && !tags.some((existing) => existing.toLocaleLowerCase() === tag.toLocaleLowerCase())) {
+          tags.push(tag);
+          renderTags();
+        }
+        tagInput.value = '';
+      }
+
+      tagInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ',') {
+          event.preventDefault();
+          addTag(tagInput.value);
+        } else if (event.key === 'Backspace' && !tagInput.value && tags.length) {
+          tags.pop();
+          renderTags();
+        }
+      });
+
+      tagInput.addEventListener('blur', () => {
+        if (tagInput.value.trim()) addTag(tagInput.value);
+      });
+
+      document.getElementById('tag-control').addEventListener('click', (event) => {
+        if (!event.target.closest('.tag-remove')) tagInput.focus();
+      });
+
+      function formatBytes(bytes) {
+        if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      }
+
+      function showFile(file) {
+        if (!file) return;
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+          fileInput.value = '';
+          statusMessage.textContent = 'กรุณาเลือกไฟล์ PDF';
+          statusMessage.classList.add('is-visible');
+          return;
+        }
+
+        statusMessage.classList.remove('is-visible');
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        fileInput.files = transfer.files;
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-size').textContent = formatBytes(file.size);
+        document.getElementById('drop-title').textContent = 'เลือกไฟล์เรียบร้อยแล้ว';
+        document.getElementById('drop-copy').textContent = 'เลือกไฟล์อื่นเพื่อเปลี่ยนเอกสาร';
+        document.getElementById('choose-file').textContent = 'เปลี่ยนไฟล์ PDF';
+        fileDetails.classList.add('is-visible');
+        dropZone.classList.add('has-file');
+
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        filePreview.src = previewUrl;
+        filePreview.classList.add('is-visible');
+      }
+
+      document.getElementById('choose-file').addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', () => showFile(fileInput.files[0]));
+
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.add('is-dragging');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.remove('is-dragging');
+        });
+      });
+
+      dropZone.addEventListener('drop', (event) => {
+        const file = event.dataTransfer.files[0];
+        if (file) showFile(file);
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        statusMessage.classList.add('is-visible');
+        if (!form.reportValidity()) {
+          statusMessage.textContent = 'กรุณากรอกข้อมูลที่มีเครื่องหมาย * และเลือกไฟล์ PDF ให้ครบ';
+          return;
+        }
+        statusMessage.textContent = 'ข้อมูลครบแล้ว แต่ยังบันทึกลงฐานข้อมูลไม่ได้ เนื่องจากโปรเจกต์นี้ยังไม่มี Flask upload endpoint';
+      });
+
+      window.addEventListener('beforeunload', () => {
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+      });
+    })();
+  </script>
+</body>
+</html>
